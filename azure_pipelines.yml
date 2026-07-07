@@ -17,12 +17,16 @@ variables:
   terraformVersion: '1.8.5'
   serviceConnection: 'Azure-ServiceConnection'
 
+  tfStateResourceGroup: 'rg-tfstate-demo'
+  tfStateStorageAccount: 'tfstatesanthoshdemo'
+  tfStateContainer: 'tfstate'
+  tfStateLocation: 'eastus'
+
 stages:
 - stage: Build
   displayName: 'Build - Terraform Validate and Plan'
   jobs:
   - job: TerraformBuild
-    displayName: 'Terraform Init Validate Plan'
     steps:
     - checkout: self
 
@@ -48,6 +52,29 @@ stages:
           export ARM_TENANT_ID=$tenantId
           export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
+          echo "Creating Terraform backend resources if not exists..."
+
+          az group create \
+            --name $(tfStateResourceGroup) \
+            --location $(tfStateLocation)
+
+          az storage account create \
+            --name $(tfStateStorageAccount) \
+            --resource-group $(tfStateResourceGroup) \
+            --location $(tfStateLocation) \
+            --sku Standard_LRS \
+            --kind StorageV2
+
+          ACCOUNT_KEY=$(az storage account keys list \
+            --resource-group $(tfStateResourceGroup) \
+            --account-name $(tfStateStorageAccount) \
+            --query '[0].value' -o tsv)
+
+          az storage container create \
+            --name $(tfStateContainer) \
+            --account-name $(tfStateStorageAccount) \
+            --account-key $ACCOUNT_KEY
+
           rm -rf .terraform
           rm -f .terraform.lock.hcl
 
@@ -61,7 +88,6 @@ stages:
   condition: and(succeeded(), eq('${{ parameters.action }}', 'deploy'))
   jobs:
   - deployment: TerraformDeploy
-    displayName: 'Create Azure VM Infrastructure'
     environment: 'dev'
     strategy:
       runOnce:
@@ -103,7 +129,6 @@ stages:
   condition: and(succeeded(), eq('${{ parameters.action }}', 'destroy'))
   jobs:
   - deployment: TerraformDestroy
-    displayName: 'Delete Azure VM Infrastructure'
     environment: 'dev-destroy'
     strategy:
       runOnce:
