@@ -1,51 +1,77 @@
 variable "resource_group_name" {
-  default = "rg-devops-vm-demo"
+  description = "Azure Resource Group Name"
+  type        = string
+  default     = "rg-devops-vm-demo"
 }
 
 variable "location" {
-  default = "East US"
+  description = "Azure Region"
+  type        = string
+  default     = "East US"
 }
 
 variable "vnet_name" {
-  default = "vnet-devops-demo"
+  description = "Virtual Network Name"
+  type        = string
+  default     = "vnet-devops-demo"
 }
 
 variable "vnet_address_space" {
-  default = "10.0.0.0/16"
+  description = "VNet Address Space"
+  type        = string
+  default     = "10.0.0.0/16"
 }
 
 variable "subnet_name" {
-  default = "subnet-devops-demo"
+  description = "Subnet Name"
+  type        = string
+  default     = "subnet-devops-demo"
 }
 
 variable "subnet_address_prefix" {
-  default = "10.0.1.0/24"
+  description = "Subnet Address Prefix"
+  type        = string
+  default     = "10.0.1.0/24"
 }
 
 variable "nsg_name" {
-  default = "nsg-devops-demo"
+  description = "Network Security Group Name"
+  type        = string
+  default     = "nsg-devops-demo"
 }
 
 variable "public_ip_name" {
-  default = "pip-devops-demo"
+  description = "Public IP Name"
+  type        = string
+  default     = "pip-devops-demo"
 }
 
 variable "nic_name" {
-  default = "nic-devops-demo"
+  description = "Network Interface Name"
+  type        = string
+  default     = "nic-devops-demo"
 }
 
 variable "vm_name" {
-  default = "vm-devops-demo"
+  description = "Virtual Machine Name"
+  type        = string
+  default     = "vm-devops-demo"
 }
 
 variable "vm_size" {
-  default = "Standard_D2ls_v7"
+  description = "Azure VM Size"
+  type        = string
+  default     = "Standard_D2ls_v7"
 }
 
 variable "admin_username" {
-  default = "azureuser"
+  description = "Linux Admin Username"
+  type        = string
+  default     = "azureuser"
 }
 
 variable "ssh_public_key_path" {
-  default = "id_rsa.pub"
+  description = "SSH Public Key File Path"
+  type        = string
+  default     = "id_rsa.pub"
 }

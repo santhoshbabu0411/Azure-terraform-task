@@ -4,10 +4,18 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+parameters:
+- name: action
+  displayName: Select Action
+  type: string
+  default: deploy
+  values:
+  - deploy
+  - destroy
+
 variables:
   terraformVersion: '1.8.5'
-  serviceConnection: 'YOUR-AZURE-SERVICE-CONNECTION-NAME'
-  destroyInfra: 'false'
+  serviceConnection: 'Azure-ServiceConnection'
 
 stages:
 - stage: Build
@@ -38,17 +46,10 @@ stages:
           terraform validate
           terraform plan -out=tfplan
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Terraform Files'
-      inputs:
-        PathtoPublish: '$(System.DefaultWorkingDirectory)'
-        ArtifactName: 'terraform-files'
-        publishLocation: 'Container'
-
 - stage: Deploy
   displayName: 'Deploy - Terraform Apply'
   dependsOn: Build
-  condition: and(succeeded(), ne(variables['destroyInfra'], 'true'))
+  condition: and(succeeded(), eq('${{ parameters.action }}', 'deploy'))
   jobs:
   - deployment: TerraformDeploy
     displayName: 'Create Azure VM Infrastructure'
@@ -78,10 +79,13 @@ stages:
                 terraform init
                 terraform apply -auto-approve
 
+                echo "Terraform Output:"
+                terraform output
+
 - stage: Decommission
   displayName: 'Decommission - Terraform Destroy'
   dependsOn: Build
-  condition: and(succeeded(), eq(variables['destroyInfra'], 'true'))
+  condition: and(succeeded(), eq('${{ parameters.action }}', 'destroy'))
   jobs:
   - deployment: TerraformDestroy
     displayName: 'Delete Azure VM Infrastructure'
