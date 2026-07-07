@@ -48,6 +48,9 @@ stages:
           export ARM_TENANT_ID=$tenantId
           export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
+          rm -rf .terraform
+          rm -f .terraform.lock.hcl
+
           terraform init -reconfigure
           terraform validate
           terraform plan -out=tfplan
